@@ -18,12 +18,57 @@
     header {
       text-align: center;
       margin-bottom: 20px;
+      position: relative;
+    }
+    header h1 {
+      display: inline-block;
+      margin: 0;
+    }
+    #togglePostFormBtn {
+      font-size: 1.5em;
+      padding: 0 10px;
+      cursor: pointer;
+    }
+    /* Hamburger Menu Styling */
+    .hamburger-menu {
+      display: inline-block;
+      position: relative;
+      vertical-align: middle;
+    }
+    #hamburgerBtn {
+      font-size: 1.5em;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .hamburger-menu-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background-color: #f9f9f9;
+      min-width: 150px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+      border-radius: 5px;
+      z-index: 1;
+    }
+    .hamburger-menu-content button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+    }
+    .hamburger-menu-content button:hover {
+      background-color: #f1f1f1;
     }
     form {
       margin-bottom: 20px;
       border: 1px solid #ccc;
       padding: 15px;
       border-radius: 5px;
+      display: none; /* Hidden by default */
     }
     label {
       display: block;
@@ -111,9 +156,15 @@
 <body>
   <header>
     <h1>Post Page</h1>
+    <button id="togglePostFormBtn">+</button>
+    <div class="hamburger-menu">
+      <button id="hamburgerBtn">&#9776;</button>
+      <div id="hamburgerMenuContent" class="hamburger-menu-content">
+        <button id="setUserNameBtn">Set/Change Name</button>
+        <button id="firebaseSetupBtn">Firebase Setup</button>
+      </div>
+    </div>
     <div id="userNameDisplay"></div>
-    <button id="setUserNameBtn">Set/Change Name</button>
-    <button id="firebaseSetupBtn">Firebase Setup</button>
   </header>
 
   <form id="postForm">
@@ -172,6 +223,9 @@
     const postText = document.getElementById('postText');
     const postImage = document.getElementById('postImage');
     const postsContainer = document.getElementById('postsContainer');
+    const togglePostFormBtn = document.getElementById('togglePostFormBtn');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const hamburgerMenuContent = document.getElementById('hamburgerMenuContent');
     
     // Update the username display
     function updateUserNameDisplay() {
@@ -179,10 +233,32 @@
     }
     updateUserNameDisplay();
     
+    // Toggle post form visibility
+    togglePostFormBtn.addEventListener('click', () => {
+      if (postForm.style.display === "none" || postForm.style.display === "") {
+        postForm.style.display = "block";
+        togglePostFormBtn.textContent = "-";
+      } else {
+        postForm.style.display = "none";
+        togglePostFormBtn.textContent = "+";
+      }
+    });
+    
+    // Toggle hamburger menu content
+    hamburgerBtn.addEventListener('click', () => {
+      if (hamburgerMenuContent.style.display === "block") {
+        hamburgerMenuContent.style.display = "none";
+      } else {
+        hamburgerMenuContent.style.display = "block";
+      }
+    });
+    
     // Event listeners for username modal
     setUserNameBtn.addEventListener('click', () => {
       userNameInput.value = currentUserName;
       userNameModal.style.display = 'block';
+      // Hide the hamburger menu when opening the modal
+      hamburgerMenuContent.style.display = "none";
     });
     saveUserNameBtn.addEventListener('click', () => {
       const name = userNameInput.value.trim();
@@ -205,6 +281,7 @@
       if (apiKey) {
         localStorage.setItem('firebaseApiKey', apiKey);
         alert("Firebase API key saved. Please refresh the page to initialize Firebase.");
+        hamburgerMenuContent.style.display = "none";
       }
     });
     
