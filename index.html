@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post Page</title>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <style>
+    /* Basic page styling */
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 10px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    form {
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+    .post {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      position: relative;
+    }
+    .post img {
+      max-width: 100%;
+      display: block;
+      margin-top: 10px;
+    }
+    .user-info {
+      margin-bottom: 10px;
+      font-size: 0.9em;
+      color: #555;
+    }
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .comments {
+      margin-top: 10px;
+      padding-left: 10px;
+      border-left: 2px solid #ccc;
+    }
+    .comment {
+      border-top: 1px solid #eee;
+      padding-top: 5px;
+      margin-top: 5px;
+      font-size: 0.9em;
+    }
+    /* Modal styling for setting/changing username */
+    #userNameModal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      z-index: 1000;
+      width: 80%;
+      max-width: 400px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Post Page</h1>
+    <div id="userNameDisplay"></div>
+    <button id="setUserNameBtn">Set/Change Name</button>
+    <button id="firebaseSetupBtn">Firebase Setup</button>
+  </header>
+
+  <form id="postForm">
+    <h2>Create a New Post</h2>
+    <label for="postText">Text:</label>
+    <textarea id="postText" rows="3" required></textarea>
+    <label for="postImage">Image (optional):</label>
+    <input type="file" id="postImage" accept="image/*">
+    <button type="submit">Publish Post</button>
+  </form>
+
+  <div id="postsContainer"></div>
+
+  <!-- Modal for setting/changing username -->
+  <div id="userNameModal">
+    <h2>Set Your Name</h2>
+    <label for="userNameInput">Your Name:</label>
+    <input type="text" id="userNameInput" required>
+    <button id="saveUserNameBtn">Save</button>
+    <button id="closeUserNameModalBtn">Close</button>
+  </div>
+
+  <script>
+    // Firebase initialization (if API key is set in localStorage)
+    let firebaseConfigured = false;
+    let db = null;
+    const firebaseApiKey = localStorage.getItem('firebaseApiKey');
+    if (firebaseApiKey) {
+      const firebaseConfig = {
+        apiKey: firebaseApiKey,
+        authDomain: "homeinventory-4718c.firebaseapp.com",
+        projectId: "homeinventory-4718c",
+        storageBucket: "homeinventory-4718c.firebasestorage.app",
+        messagingSenderId: "719884896213",
+        appId: "1:719884896213:web:e93d5dffc79dec10995f5c"
+      };
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      firebaseConfigured = true;
+      console.log("Firebase initialized");
+    }
+    
+    // Retrieve posts and username from localStorage
+    let posts = JSON.parse(localStorage.getItem('posts')) || [];
+    let currentUserName = localStorage.getItem('postUserName') || '';
+    
+    // DOM elements
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const setUserNameBtn = document.getElementById('setUserNameBtn');
+    const firebaseSetupBtn = document.getElementById('firebaseSetupBtn');
+    const userNameModal = document.getElementById('userNameModal');
+    const userNameInput = document.getElementById('userNameInput');
+    const saveUserNameBtn = document.getElementById('saveUserNameBtn');
+    const closeUserNameModalBtn = document.getElementById('closeUserNameModalBtn');
+    const postForm = document.getElementById('postForm');
+    const postText = document.getElementById('postText');
+    const postImage = document.getElementById('postImage');
+    const postsContainer = document.getElementById('postsContainer');
+    
+    // Update the username display
+    function updateUserNameDisplay() {
+      userNameDisplay.textContent = currentUserName ? 'Logged in as: ' + currentUserName : 'No name set';
+    }
+    updateUserNameDisplay();
+    
+    // Event listeners for username modal
+    setUserNameBtn.addEventListener('click', () => {
+      userNameInput.value = currentUserName;
+      userNameModal.style.display = 'block';
+    });
+    saveUserNameBtn.addEventListener('click', () => {
+      const name = userNameInput.value.trim();
+      if (name) {
+        currentUserName = name;
+        localStorage.setItem('postUserName', currentUserName);
+        updateUserNameDisplay();
+        userNameModal.style.display = 'none';
+      } else {
+        alert('Please enter a valid name.');
+      }
+    });
+    closeUserNameModalBtn.addEventListener('click', () => {
+      userNameModal.style.display = 'none';
+    });
+    
+    // Firebase Setup: allow user to set the API key (requires a page refresh)
+    firebaseSetupBtn.addEventListener('click', () => {
+      let apiKey = prompt("Enter your Firebase API Key:");
+      if (apiKey) {
+        localStorage.setItem('firebaseApiKey', apiKey);
+        alert("Firebase API key saved. Please refresh the page to initialize Firebase.");
+      }
+    });
+    
+    // Delete a post by its id.
+    function deletePost(postId) {
+      if (!confirm("Are you sure you want to delete this post?")) return;
+      posts = posts.filter(post => post.id !== postId);
+      localStorage.setItem('posts', JSON.stringify(posts));
+      if (firebaseConfigured && db) {
+        db.collection('posts').doc(postId.toString()).delete()
+          .then(() => console.log("Post deleted from Firebase"))
+          .catch(error => console.error("Error deleting post from Firebase", error));
+      }
+      renderPosts();
+    }
+    
+    // Render posts and their comments
+    function renderPosts() {
+      postsContainer.innerHTML = '';
+      // Display posts in reverse chronological order
+      posts.slice().reverse().forEach(post => {
+        const postDiv = document.createElement('div');
+        postDiv.className = 'post';
+        
+        // Header with username, timestamp, and (if the current user created it) a delete button.
+        const postHeader = document.createElement('div');
+        postHeader.className = 'user-info';
+        postHeader.innerHTML = `<strong>${post.userName}</strong> - ${new Date(post.timestamp).toLocaleString()}`;
+        
+        // Only allow deletion if the current user is the creator.
+        if (currentUserName && post.userName === currentUserName) {
+          const deleteBtn = document.createElement('button');
+          deleteBtn.textContent = "Delete Post";
+          deleteBtn.className = 'delete-btn';
+          deleteBtn.addEventListener('click', () => deletePost(post.id));
+          postDiv.appendChild(deleteBtn);
+        }
+        postDiv.appendChild(postHeader);
+        
+        // Post content and optional image.
+        const postContent = document.createElement('div');
+        postContent.innerHTML = `<p>${post.text}</p>`;
+        postDiv.appendChild(postContent);
+        if (post.image) {
+          const img = document.createElement('img');
+          img.src = post.image;
+          postDiv.appendChild(img);
+        }
+        
+        // Comments section.
+        const commentsDiv = document.createElement('div');
+        commentsDiv.className = 'comments';
+        const commentsHeader = document.createElement('h4');
+        commentsHeader.textContent = 'Comments';
+        commentsDiv.appendChild(commentsHeader);
+        
+        post.comments = post.comments || [];
+        post.comments.forEach(comment => {
+          const commentDiv = document.createElement('div');
+          commentDiv.className = 'comment';
+          commentDiv.innerHTML = `<strong>${comment.userName}</strong> - ${new Date(comment.timestamp).toLocaleString()}<br>${comment.text}`;
+          commentsDiv.appendChild(commentDiv);
+        });
+        
+        // Comment form for each post.
+        const commentForm = document.createElement('form');
+        commentForm.style.marginTop = '10px';
+        commentForm.innerHTML = `
+          <input type="text" placeholder="Add a comment..." required style="width: 80%;">
+          <button type="submit">Comment</button>
+        `;
+        commentForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const commentInput = commentForm.querySelector('input');
+          const commentText = commentInput.value.trim();
+          if (!commentText) return;
+          const comment = {
+            id: Date.now(),
+            userName: currentUserName || 'Anonymous',
+            text: commentText,
+            timestamp: new Date().toISOString()
+          };
+          post.comments.push(comment);
+          localStorage.setItem('posts', JSON.stringify(posts));
+          // Update post in Firebase if configured.
+          if (firebaseConfigured && db) {
+            db.collection('posts').doc(post.id.toString()).set(post)
+              .then(() => console.log("Comment added to Firebase"))
+              .catch(error => console.error("Error updating comment in Firebase", error));
+          }
+          renderPosts();
+        });
+        commentsDiv.appendChild(commentForm);
+        
+        postDiv.appendChild(commentsDiv);
+        postsContainer.appendChild(postDiv);
+      });
+    }
+    
+    // Create a new post and save it to localStorage and Firebase if available.
+    function createPost(text, imageData) {
+      const newPost = {
+        id: Date.now(),
+        userName: currentUserName,
+        text: text,
+        image: imageData,
+        timestamp: new Date().toISOString(),
+        comments: []
+      };
+      posts.push(newPost);
+      localStorage.setItem('posts', JSON.stringify(posts));
+      if (firebaseConfigured && db) {
+        db.collection('posts').doc(newPost.id.toString()).set(newPost)
+          .then(() => console.log("Post saved to Firebase"))
+          .catch(error => console.error("Error saving post to Firebase", error));
+      }
+      renderPosts();
+    }
+    
+    // Handle new post submission.
+    postForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (!currentUserName) {
+        alert('Please set your name first.');
+        return;
+      }
+      const text = postText.value.trim();
+      if (!text) {
+        alert('Post text cannot be empty.');
+        return;
+      }
+      const file = postImage.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const imageData = event.target.result;
+          createPost(text, imageData);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        createPost(text, null);
+      }
+      postForm.reset();
+    });
+    
+    // Load posts from Firebase if available; otherwise, use localStorage.
+    if (firebaseConfigured && db) {
+      db.collection('posts').get()
+        .then(querySnapshot => {
+          posts = [];
+          querySnapshot.forEach(doc => {
+            posts.push(doc.data());
+          });
+          localStorage.setItem('posts', JSON.stringify(posts));
+          renderPosts();
+          console.log("Posts loaded from Firebase");
+        })
+        .catch(error => {
+          console.error("Error loading posts from Firebase", error);
+          renderPosts();
+        });
+    } else {
+      renderPosts();
+    }
+  </script>
+</body>
+</html>
+
