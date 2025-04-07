@@ -69,6 +69,17 @@
       cursor: pointer;
       border-radius: 3px;
     }
+    .edit-btn {
+      position: absolute;
+      top: 10px;
+      right: 110px;
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
     .comments {
       margin-top: 10px;
       padding-left: 10px;
@@ -210,6 +221,21 @@
       renderPosts();
     }
     
+    // Edit a post (only available for the owner)
+    function editPost(post) {
+      const newText = prompt("Edit your post:", post.text);
+      if (newText !== null && newText.trim() !== "") {
+        post.text = newText.trim();
+        localStorage.setItem('posts', JSON.stringify(posts));
+        if (firebaseConfigured && db) {
+          db.collection('posts').doc(post.id.toString()).set(post)
+            .then(() => console.log("Post updated in Firebase"))
+            .catch(error => console.error("Error updating post in Firebase", error));
+        }
+        renderPosts();
+      }
+    }
+    
     // Render posts and their comments
     function renderPosts() {
       postsContainer.innerHTML = '';
@@ -218,18 +244,23 @@
         const postDiv = document.createElement('div');
         postDiv.className = 'post';
         
-        // Header with username, timestamp, and (if the current user created it) a delete button.
+        // Header with username, timestamp, and (if the current user created it) edit and delete buttons.
         const postHeader = document.createElement('div');
         postHeader.className = 'user-info';
         postHeader.innerHTML = `<strong>${post.userName}</strong> - ${new Date(post.timestamp).toLocaleString()}`;
         
-        // Only allow deletion if the current user is the creator.
         if (currentUserName && post.userName === currentUserName) {
           const deleteBtn = document.createElement('button');
           deleteBtn.textContent = "Delete Post";
           deleteBtn.className = 'delete-btn';
           deleteBtn.addEventListener('click', () => deletePost(post.id));
           postDiv.appendChild(deleteBtn);
+          
+          const editBtn = document.createElement('button');
+          editBtn.textContent = "Edit Post";
+          editBtn.className = 'edit-btn';
+          editBtn.addEventListener('click', () => editPost(post));
+          postDiv.appendChild(editBtn);
         }
         postDiv.appendChild(postHeader);
         
