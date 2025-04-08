@@ -23,6 +23,16 @@
       align-items: center;
       justify-content: center;
     }
+    #searchContainer {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    #searchInput {
+      width: 80%;
+      padding: 8px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
     form {
       margin-bottom: 20px;
       border: 1px solid #ccc;
@@ -168,6 +178,11 @@
     </div>
   </header>
 
+  <!-- Search Box -->
+  <div id="searchContainer">
+    <input type="text" id="searchInput" placeholder="Enter text to search posts...">
+  </div>
+
   <form id="postForm">
     <h2>Create a New Post</h2>
     <label for="postText">Text:</label>
@@ -227,6 +242,7 @@
     const postText = document.getElementById('postText');
     const postImage = document.getElementById('postImage');
     const postsContainer = document.getElementById('postsContainer');
+    const searchInput = document.getElementById('searchInput');
     
     // Update the username display
     function updateUserNameDisplay() {
@@ -311,10 +327,21 @@
       }
     }
     
-    // Render posts and their comments
+    // Render posts and their comments with filtering by search text.
     function renderPosts() {
       postsContainer.innerHTML = '';
-      posts.slice().reverse().forEach(post => {
+      // Get the current search query and convert it to lower case.
+      const searchQuery = searchInput.value.trim().toLowerCase();
+      
+      // Filter posts based on whether the post text includes the search query.
+      let postsToRender = posts;
+      if (searchQuery) {
+        postsToRender = posts.filter(post => 
+          post.text.toLowerCase().includes(searchQuery)
+        );
+      }
+      
+      postsToRender.slice().reverse().forEach(post => {
         const postDiv = document.createElement('div');
         postDiv.className = 'post';
         
@@ -393,6 +420,9 @@
       });
     }
     
+    // Add event listener to the search input to update posts as you type.
+    searchInput.addEventListener('input', renderPosts);
+    
     // Create a new post and save it to localStorage and Firebase if available.
     function createPost(text, imageData) {
       const newPost = {
@@ -463,3 +493,4 @@
   </script>
 </body>
 </html>
+
