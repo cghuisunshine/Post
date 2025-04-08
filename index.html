@@ -164,6 +164,15 @@
     #postForm.active {
       display: block; /* Shown when toggled */
     }
+    /* Thumbnail styling */
+    .thumbnail {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -367,9 +376,34 @@
         const postContent = document.createElement('div');
         postContent.innerHTML = `<p>${post.text}</p>`;
         postDiv.appendChild(postContent);
+        
+        // Display the image as a thumbnail.
         if (post.image) {
           const img = document.createElement('img');
           img.src = post.image;
+          img.className = 'thumbnail';
+          img.style.cursor = 'pointer';
+          
+          // When clicked, open a new mobile-friendly window with a Back button.
+          img.addEventListener('click', () => {
+            const newWindow = window.open('');
+            newWindow.document.write('<html>');
+            newWindow.document.write('<head>');
+            newWindow.document.write('<title>Image</title>');
+            newWindow.document.write('<meta name="viewport" content="width=device-width, initial-scale=1">');
+            newWindow.document.write('<style>');
+            newWindow.document.write('body { margin: 0; padding: 0; }');
+            newWindow.document.write('button { position: fixed; top: 10px; left: 10px; padding: 10px; z-index: 1000; }');
+            newWindow.document.write('img { width: 100%; display: block; margin-top: 50px; }');
+            newWindow.document.write('</style>');
+            newWindow.document.write('</head>');
+            newWindow.document.write('<body>');
+            newWindow.document.write('<button onclick="window.close();">Back</button>');
+            newWindow.document.write('<img src="' + post.image + '" alt="Full Image">');
+            newWindow.document.write('</body></html>');
+            newWindow.document.close();
+          });
+          
           postDiv.appendChild(img);
         }
         
