@@ -1,259 +1,160 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Post Page</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat Page</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
   <style>
-    /* Enhanced page styling */
-    :root {
-      --primary-color: #007bff;
-      --secondary-color: #6c757d;
-      --light-gray: #f8f9fa;
-      --medium-gray: #e9ecef;
-      --dark-gray: #343a40;
-      --danger-color: #dc3545;
-      --success-color: #28a745;
-      --info-color: #17a2b8;
-      --border-radius: 8px;
-      --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
+    /* Basic page styling */
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--light-gray);
-      color: var(--dark-gray);
-      max-width: 700px;
-      margin: 30px auto;
-      padding: 20px;
-      line-height: 1.6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f8;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
-
+    .chat-container {
+        max-width: 700px;
+        width: 100%;
+        margin: 0 auto;
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
     header {
+      text-align: center;
+      position: relative;
       display: flex;
       align-items: center;
-      justify-content: space-between; /* Adjust alignment */
-      margin-bottom: 30px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid var(--medium-gray);
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 2em;
-      color: var(--primary-color);
-    }
-
-    #userNameDisplay {
-      font-style: italic;
-      color: var(--secondary-color);
-      margin: 0 15px; /* Add spacing */
-    }
-
-    #searchContainer {
-      margin-bottom: 30px;
-      text-align: center;
-    }
-
-    #searchInput {
-      width: 100%; /* Full width */
-      padding: 12px 15px;
-      border: 1px solid var(--medium-gray);
-      border-radius: var(--border-radius);
-      box-sizing: border-box;
-      font-size: 1em;
-    }
-    #searchInput:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-    }
-
-    form#postForm {
-      background-color: #fff;
-      margin-bottom: 30px;
-      border: 1px solid var(--medium-gray);
-      padding: 20px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
-    }
-    form#postForm h2 {
-        margin-top: 0;
-        color: var(--primary-color);
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: var(--secondary-color);
-    }
-
-    input[type="text"],
-    input[type="file"],
-    textarea {
-      width: 100%;
-      padding: 10px 12px;
-      margin-top: 5px;
-      box-sizing: border-box;
-      border: 1px solid var(--medium-gray);
-      border-radius: var(--border-radius);
-      font-size: 1em;
-    }
-    input[type="text"]:focus,
-    textarea:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-    }
-    input[type="file"] {
-        padding: 5px; /* Adjust padding for file input */
-    }
-
-    button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      cursor: pointer;
-      border: none;
-      border-radius: var(--border-radius);
-      font-size: 1em;
-      font-weight: bold;
-      transition: background-color 0.2s ease, transform 0.1s ease;
-    }
-    button:hover {
-        opacity: 0.9;
-    }
-    button:active {
-        transform: scale(0.98);
-    }
-
-    /* Primary button style */
-    form button[type="submit"],
-    #saveUserNameBtn {
-      background-color: var(--primary-color);
-      color: white;
-    }
-
-    /* Secondary/Close button style */
-    #closeUserNameModalBtn {
-        background-color: var(--secondary-color);
-        color: white;
-        margin-left: 10px;
-    }
-
-    .post {
-      background-color: #fff;
-      border: 1px solid var(--medium-gray);
+      justify-content: space-between;
       padding: 15px 20px;
-      margin: 20px 0;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
-      position: relative;
+      background-color: #fff;
+      border-bottom: 1px solid #e5e5e5;
     }
-
-    .user-info {
-      margin-bottom: 15px;
-      font-size: 0.9em;
-      color: var(--secondary-color);
-      border-bottom: 1px dashed var(--medium-gray);
-      padding-bottom: 10px;
-    }
-    .user-info strong {
-        color: var(--dark-gray);
+    header h1 {
+        margin: 0;
+        font-size: 1.4em;
         font-weight: 600;
     }
-
-    .post p {
-        margin-top: 0;
-        margin-bottom: 15px;
+    #searchContainer {
+      text-align: center;
+      padding: 10px 20px;
+      background-color: #f9f9f9;
+      border-bottom: 1px solid #e5e5e5;
     }
-
-    /* Button positioning within post */
-    .post-actions {
-        position: absolute;
-        top: 15px;
-        right: 15px;
+    #searchInput {
+      width: 100%;
+      padding: 10px 15px;
+      margin: 0 auto;
+      box-sizing: border-box;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      font-size: 0.95em;
+    }
+    /* Chat messages container */
+    #messagesContainer {
+      padding: 15px 20px;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+    .message {
+      padding: 8px 12px;
+      margin: 5px 0;
+      border-radius: 15px;
+      max-width: 75%;
+      background-color: #e5e5ea;
+      align-self: flex-start;
+      word-wrap: break-word;
+      display: flex;
+      flex-direction: column;
+    }
+    .message.own {
+      align-self: flex-end;
+      background-color: #0b93f6;
+      color: white;
+    }
+    .message-user-info {
+      margin-bottom: 3px;
+      font-size: 0.8em;
+      color: #666;
+    }
+    .message.own .message-user-info {
+        color: #e0e0e0;
+    }
+    .message-content {
+        margin-bottom: 5px;
+    }
+    .message-actions {
         display: flex;
-        gap: 8px; /* Space between buttons */
+        gap: 5px;
+        margin-top: 5px;
+        align-self: flex-end;
     }
-
-    .delete-btn, .edit-btn {
-      position: static; /* Remove absolute positioning */
-      padding: 6px 12px;
-      font-size: 0.9em;
+    .delete-btn, .edit-btn, .comment-btn {
+      background: rgba(0, 0, 0, 0.1);
+      color: inherit;
+      border: none;
+      padding: 3px 8px;
+      cursor: pointer;
+      border-radius: 10px;
+      font-size: 0.8em;
+      line-height: 1;
+    }
+    .delete-btn:hover, .edit-btn:hover, .comment-btn:hover {
+        background: rgba(0, 0, 0, 0.2);
+    }
+    /* Input area for new messages */
+    #chatForm {
+      display: flex;
+      gap: 8px;
+      margin-top: 15px;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-top: 1px solid #ddd;
+      border-radius: 0 0 5px 5px;
+    }
+    #chatInput {
+      flex: 1;
+      padding: 10px 12px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 18px;
+      font-size: 1em;
+    }
+    #chatForm button[type="submit"] {
+      padding: 10px 18px;
+      cursor: pointer;
+      background-color: #0b93f6;
       color: white;
       border: none;
-      border-radius: var(--border-radius);
-      cursor: pointer;
+      border-radius: 18px;
+      font-weight: bold;
       transition: background-color 0.2s ease;
     }
-    .delete-btn {
-      background-color: var(--danger-color);
+    #chatForm button[type="submit"]:hover {
+        background-color: #0a84e0;
     }
-    .edit-btn {
-      background-color: var(--info-color);
+    button {
+      padding: 8px 15px;
+      cursor: pointer;
     }
-    .delete-btn:hover { background-color: #c82333; }
-    .edit-btn:hover { background-color: #138496; }
-
-
-    .comments {
-      margin-top: 20px;
-      padding-top: 15px;
-      padding-left: 15px;
-      border-left: 3px solid var(--primary-color);
-      background-color: var(--light-gray); /* Slight background differentiation */
-      border-radius: 0 var(--border-radius) var(--border-radius) 0;
-    }
-    .comments h4 {
-        margin-top: 0;
-        margin-bottom: 10px;
-        color: var(--primary-color);
-    }
-
-    .comment {
-      border-top: 1px solid var(--medium-gray);
-      padding: 10px 0;
-      margin-top: 0; /* Remove default margin */
-      font-size: 0.9em;
-    }
-    .comment:first-of-type {
-        border-top: none; /* No top border for the first comment */
-    }
-    .comment strong {
-        color: var(--dark-gray);
-        font-weight: 600;
-    }
-    .comment span { /* Assuming timestamp is wrapped or separated */
-        color: var(--secondary-color);
-        font-size: 0.85em;
-        margin-left: 5px;
-    }
-
-    /* Comment form styling */
-    .comments form {
-        margin-top: 15px;
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    }
-    .comments form input[type="text"] {
-        flex-grow: 1; /* Take available space */
-        margin-top: 0; /* Reset margin */
-        padding: 8px 10px; /* Smaller padding */
-    }
-    .comments form button {
-        margin-top: 0; /* Reset margin */
-        padding: 8px 15px; /* Smaller padding */
-        background-color: var(--success-color);
-        color: white;
-    }
-
-    /* Modal styling */
+    /* Modal styling for setting/changing username */
     #userNameModal {
       display: none;
       position: fixed;
@@ -261,58 +162,40 @@
       left: 50%;
       transform: translate(-50%, -50%);
       background: #fff;
-      padding: 30px;
-      border: none; /* Remove border */
-      border-radius: var(--border-radius);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
       z-index: 1000;
-      width: 90%;
-      max-width: 450px;
+      width: 80%;
+      max-width: 400px;
     }
-    #userNameModal h2 {
-        margin-top: 0;
-        margin-bottom: 20px;
-        color: var(--primary-color);
-        text-align: center;
+    /* Right side of header */
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        position: relative;
     }
-    #userNameModal label {
-        margin-top: 0; /* Adjust label margin */
-    }
-    #userNameModal input {
-        margin-bottom: 20px; /* Space before buttons */
-    }
-    #userNameModal div { /* Container for buttons */
-        text-align: right; /* Align buttons to the right */
-    }
-
-
     /* Hamburger menu styling */
     .hamburger {
-      font-size: 28px; /* Slightly larger */
+      font-size: 24px;
       background: none;
       border: none;
       cursor: pointer;
-      color: var(--secondary-color);
-      padding: 5px; /* Add some padding */
-      position: static; /* Remove absolute positioning */
-      order: 3; /* Position after username */
+      padding: 0;
+      line-height: 1;
     }
-    .hamburger:hover {
-        color: var(--primary-color);
-    }
-
     .menu {
       display: none;
       position: absolute;
-      top: 60px; /* Adjust position based on header height */
-      right: 20px; /* Align with page padding */
+      top: 100%;
+      right: 0;
+      margin-top: 5px;
       background: #fff;
-      border: 1px solid var(--medium-gray);
-      border-radius: var(--border-radius);
+      border: 1px solid #ccc;
+      border-radius: 5px;
       padding: 10px;
       z-index: 1000;
-      box-shadow: var(--box-shadow);
-      min-width: 180px; /* Give it some width */
     }
     .menu.active {
       display: block;
@@ -320,436 +203,448 @@
     .menu button {
       display: block;
       width: 100%;
-      margin: 0; /* Remove default margin */
-      padding: 10px 15px; /* Consistent padding */
+      margin: 5px 0;
       text-align: left;
-      background: none;
-      border: none;
-      color: var(--dark-gray);
-      font-weight: normal; /* Reset font weight */
-      border-radius: 4px; /* Slight rounding */
     }
-    .menu button:hover {
-      background-color: var(--light-gray);
-      color: var(--primary-color);
+    #userNameDisplay {
+      margin-left: 10px;
+      font-weight: bold;
     }
-
-    /* Toggle button for post form */
-    .toggle-post-btn {
-      font-size: 28px; /* Match hamburger */
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--success-color);
+    /* Comments container */
+    .comments-container {
+      margin-top: 10px;
+      margin-left: 20px;
+      border-left: 2px solid #eee;
+      padding-left: 10px;
+    }
+    .comment {
+      border: 1px solid #f0f0f0;
+      margin: 5px 0;
       padding: 5px;
-      margin-left: 15px; /* Space from title */
-      order: 1; /* Position after title */
+      border-radius: 4px;
     }
-    .toggle-post-btn:hover {
-        color: #218838; /* Darker green */
+    .comment-header {
+      font-size: 0.8em;
+      color: #666;
+      margin-bottom: 3px;
     }
-
-    #postForm {
-      display: none; /* Hidden by default */
-      overflow: hidden; /* For smooth transition */
-      transition: max-height 0.5s ease-out, padding 0.5s ease-out;
-      max-height: 0;
-      padding-top: 0;
-      padding-bottom: 0;
-      margin-bottom: 0; /* Collapse margin when hidden */
-      border-top: none; /* Avoid double border */
-    }
-    #postForm.active {
-      display: block; /* Needed for transition */
-      max-height: 500px; /* Adjust as needed, large enough for content */
-      padding: 20px; /* Restore padding */
-      margin-bottom: 30px; /* Restore margin */
-    }
-
-    /* Thumbnail styling */
-    .thumbnail {
-      width: 80px; /* Slightly larger */
-      height: 80px;
-      object-fit: cover;
-      cursor: pointer;
-      border-radius: var(--border-radius);
-      margin-top: 15px;
-      border: 1px solid var(--medium-gray);
-      transition: transform 0.2s ease;
-    }
-    .thumbnail:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-
-    /* Utility class for button container in modal */
-    .modal-buttons {
-        text-align: right;
-        margin-top: 20px;
-    }
-
   </style>
 </head>
 <body>
-  <header>
-    <h1>Post Page</h1>
-    <button class="toggle-post-btn" id="togglePostBtn">+</button>
-    <div id="userNameDisplay"></div>
-    <button class="hamburger" id="hamburgerBtn">☰</button>
-    <div class="menu" id="menu">
-      <button id="setUserNameBtn">Set/Change Name</button>
-      <button id="firebaseSetupBtn">Firebase Setup</button>
+
+<div class="chat-container">
+    <header>
+      <h1>Chat Page</h1>
+      <div class="header-right">
+          <div id="userNameDisplay"></div>
+          <button class="hamburger" id="hamburgerBtn">☰</button>
+          <div class="menu" id="menu">
+            <button id="setUserNameBtn">Set/Change Name</button>
+            <button id="firebaseSetupBtn">Firebase Setup</button>
+            <button id="shareBtn">Share</button>
+          </div>
+      </div>
+    </header>
+
+    <!-- Search Box -->
+    <div id="searchContainer">
+      <input type="text" id="searchInput" placeholder="Search messages...">
     </div>
-  </header>
 
-  <!-- Search Box -->
-  <div id="searchContainer">
-    <input type="text" id="searchInput" placeholder="Enter text to search posts...">
-  </div>
+    <!-- Chat messages container -->
+    <div id="messagesContainer"></div>
 
-  <form id="postForm">
-    <h2>Create a New Post</h2>
-    <label for="postText">Text:</label>
-    <textarea id="postText" rows="3" required></textarea>
-    <label for="postImage">Image (optional):</label>
-    <input type="file" id="postImage" accept="image/*">
-    <button type="submit">Publish Post</button>
-  </form>
+    <!-- Form to send a new message -->
+    <form id="chatForm">
+      <input type="text" id="chatInput" placeholder="Type your message..." required />
+      <button type="submit">Send</button>
+    </form>
 
-  <div id="postsContainer"></div>
+</div>
 
-  <!-- Modal for setting/changing username -->
-  <div id="userNameModal">
-    <h2>Set Your Name</h2>
-    <label for="userNameInput">Your Name:</label>
-    <input type="text" id="userNameInput" required>
-    <div class="modal-buttons"> <!-- Add container for buttons -->
-      <button id="saveUserNameBtn">Save</button>
-      <button id="closeUserNameModalBtn">Close</button>
-    </div>
-  </div>
+<!-- Modal for setting/changing username -->
+<div id="userNameModal">
+  <h2>Set Your Name</h2>
+  <label for="userNameInput">Your Name:</label>
+  <input type="text" id="userNameInput" required />
+  <button id="saveUserNameBtn">Save</button>
+  <button id="closeUserNameModalBtn">Close</button>
+</div>
 
-  <script>
-    // Firebase initialization (if API key is set in localStorage)
-    let firebaseConfigured = false;
-    let db = null;
-    const firebaseApiKey = localStorage.getItem('firebaseApiKey');
-    if (firebaseApiKey) {
-      const firebaseConfig = {
-        apiKey: firebaseApiKey,
-        authDomain: "homeinventory-4718c.firebaseapp.com",
-        projectId: "homeinventory-4718c",
-        storageBucket: "homeinventory-4718c.firebasestorage.app",
-        messagingSenderId: "719884896213",
-        appId: "1:719884896213:web:e93d5dffc79dec10995f5c"
-      };
-      firebase.initializeApp(firebaseConfig);
-      db = firebase.firestore();
-      firebaseConfigured = true;
-      console.log("Firebase initialized");
-    }
-    
-    // Retrieve posts and username from localStorage
-    let posts = JSON.parse(localStorage.getItem('posts')) || [];
-    let currentUserName = localStorage.getItem('postUserName') || '';
-    
-    // DOM elements
-    const userNameDisplay = document.getElementById('userNameDisplay');
-    const hamburgerBtn = document.getElementById('hamburgerBtn');
-    const menu = document.getElementById('menu');
-    const setUserNameBtn = document.getElementById('setUserNameBtn');
-    const firebaseSetupBtn = document.getElementById('firebaseSetupBtn');
-    const userNameModal = document.getElementById('userNameModal');
-    const userNameInput = document.getElementById('userNameInput');
-    const saveUserNameBtn = document.getElementById('saveUserNameBtn');
-    const closeUserNameModalBtn = document.getElementById('closeUserNameModalBtn');
-    const postForm = document.getElementById('postForm');
-    const togglePostBtn = document.getElementById('togglePostBtn');
-    const postText = document.getElementById('postText');
-    const postImage = document.getElementById('postImage');
-    const postsContainer = document.getElementById('postsContainer');
-    const searchInput = document.getElementById('searchInput');
-    
-    // Update the username display
-    function updateUserNameDisplay() {
-      userNameDisplay.textContent = currentUserName ? currentUserName : 'No name set';
-    }
-    updateUserNameDisplay();
-    
-    // Toggle hamburger menu
-    hamburgerBtn.addEventListener('click', () => {
-      menu.classList.toggle('active');
-    });
+<script>
+  /*******************************************
+   * 1. Firebase Initialization (if API Key exists)
+   *******************************************/
+  let firebaseConfigured = false;
+  let db = null;
 
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!menu.contains(e.target) && e.target !== hamburgerBtn) {
-        menu.classList.remove('active');
+  // Function to get URL parameters
+  function getUrlParameter(name) {
+      name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+      var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+      var results = regex.exec(location.search);
+      return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  };
+
+  // 1. Check for API key in URL parameter first
+  let apiKeyFromUrl = getUrlParameter('apiKey');
+  let firebaseApiKeyToUse = null;
+
+  if (apiKeyFromUrl) {
+      console.log("Found API key in URL parameter.");
+      firebaseApiKeyToUse = apiKeyFromUrl;
+      localStorage.setItem('firebaseApiKey', firebaseApiKeyToUse);
+  } else {
+      firebaseApiKeyToUse = localStorage.getItem('firebaseApiKey');
+      if (firebaseApiKeyToUse) {
+          console.log("Using API key from localStorage.");
       }
-    });
-    
-    // Toggle post form visibility
-    togglePostBtn.addEventListener('click', () => {
-      postForm.classList.toggle('active');
-      togglePostBtn.textContent = postForm.classList.contains('active') ? '−' : '+'; // Switch between + and −
-    });
-    
-    // Event listeners for username modal
-    setUserNameBtn.addEventListener('click', () => {
-      userNameInput.value = currentUserName;
-      userNameModal.style.display = 'block';
-      menu.classList.remove('active');
-    });
-    saveUserNameBtn.addEventListener('click', () => {
-      const name = userNameInput.value.trim();
-      if (name) {
-        currentUserName = name;
-        localStorage.setItem('postUserName', currentUserName);
-        updateUserNameDisplay();
-        userNameModal.style.display = 'none';
-      } else {
-        alert('Please enter a valid name.');
-      }
-    });
-    closeUserNameModalBtn.addEventListener('click', () => {
+  }
+
+  // 3. Initialize Firebase if we have an API key
+  if (firebaseApiKeyToUse) {
+    const firebaseConfig = {
+      apiKey: firebaseApiKeyToUse,
+      authDomain: "homeinventory-4718c.firebaseapp.com",
+      projectId: "homeinventory-4718c",
+      storageBucket: "homeinventory-4718c.firebasestorage.app",
+      messagingSenderId: "719884896213",
+      appId: "1:719884896213:web:e93d5dffc79dec10995f5c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    firebaseConfigured = true;
+    console.log("Firebase initialized for Chat");
+  }
+
+  /*******************************************
+   * 2. Local Data Setup
+   *******************************************/
+  let messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+  let currentUserName = localStorage.getItem('chatUserName') || '';
+
+  // DOM elements
+  const userNameDisplay = document.getElementById('userNameDisplay');
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const menu = document.getElementById('menu');
+  const setUserNameBtn = document.getElementById('setUserNameBtn');
+  const firebaseSetupBtn = document.getElementById('firebaseSetupBtn');
+  const shareBtn = document.getElementById('shareBtn');
+  const userNameModal = document.getElementById('userNameModal');
+  const userNameInput = document.getElementById('userNameInput');
+  const saveUserNameBtn = document.getElementById('saveUserNameBtn');
+  const closeUserNameModalBtn = document.getElementById('closeUserNameModalBtn');
+  const searchInput = document.getElementById('searchInput');
+  const messagesContainer = document.getElementById('messagesContainer');
+  const chatForm = document.getElementById('chatForm');
+  const chatInput = document.getElementById('chatInput');
+
+  /*******************************************
+   * 3. Username Handling
+   *******************************************/
+  function updateUserNameDisplay() {
+    userNameDisplay.textContent = currentUserName ? currentUserName : 'No name set';
+  }
+  updateUserNameDisplay();
+
+  // Show modal to set user name
+  setUserNameBtn.addEventListener('click', () => {
+    userNameInput.value = currentUserName;
+    userNameModal.style.display = 'block';
+    menu.classList.remove('active');
+  });
+
+  // Save user name
+  saveUserNameBtn.addEventListener('click', () => {
+    const name = userNameInput.value.trim();
+    if (name) {
+      currentUserName = name;
+      localStorage.setItem('chatUserName', currentUserName);
+      updateUserNameDisplay();
       userNameModal.style.display = 'none';
-    });
-    
-    // Firebase Setup: allow user to set the API key (requires a page refresh)
-    firebaseSetupBtn.addEventListener('click', () => {
-      let apiKey = prompt("Enter your Firebase API Key:");
-      if (apiKey) {
-        localStorage.setItem('firebaseApiKey', apiKey);
-        alert("Firebase API key saved. Please refresh the page to initialize Firebase.");
-      }
+    } else {
+      alert('Please enter a valid name.');
+    }
+  });
+
+  // Close user name modal
+  closeUserNameModalBtn.addEventListener('click', () => {
+    userNameModal.style.display = 'none';
+  });
+
+  /*******************************************
+   * 4. Hamburger Menu
+   *******************************************/
+  hamburgerBtn.addEventListener('click', () => {
+    menu.classList.toggle('active');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!menu.contains(e.target) && e.target !== hamburgerBtn) {
       menu.classList.remove('active');
-    });
-    
-    // Delete a post by its id.
-    function deletePost(postId) {
-      if (!confirm("Are you sure you want to delete this post?")) return;
-      posts = posts.filter(post => post.id !== postId);
-      localStorage.setItem('posts', JSON.stringify(posts));
+    }
+  });
+
+  firebaseSetupBtn.addEventListener('click', () => {
+    let apiKey = prompt("Enter your Firebase API Key:");
+    if (apiKey) {
+      localStorage.setItem('firebaseApiKey', apiKey);
+      alert("Firebase API key saved. Please refresh the page to initialize Firebase.");
+    }
+    menu.classList.remove('active');
+  });
+
+  // Share button functionality: share the page link with the firebase API key as a parameter (if available)
+  shareBtn.addEventListener('click', () => {
+    // Retrieve the Firebase API key from localStorage (if any)
+    let firebaseApiKey = localStorage.getItem('firebaseApiKey') || '';
+    let baseURL = window.location.origin + window.location.pathname;
+    let shareURL = firebaseApiKey ? `${baseURL}?apiKey=${encodeURIComponent(firebaseApiKey)}` : baseURL;
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Chat Page',
+        text: 'Check out this chat page!',
+        url: shareURL
+      }).then(() => console.log('Share successful'))
+      .catch(error => console.error('Error sharing:', error));
+    } else {
+      // Fallback: Display the link in a prompt for manual copying
+      prompt('Copy this link:', shareURL);
+    }
+    menu.classList.remove('active');
+  });
+
+  /*******************************************
+   * 5. Local Utility Functions
+   *******************************************/
+  // Delete a message by its ID
+  function deleteMessage(messageId) {
+    if (!confirm("Are you sure you want to delete this message?")) return;
+    messages = messages.filter(msg => msg.id !== messageId);
+    localStorage.setItem('chatMessages', JSON.stringify(messages));
+    if (firebaseConfigured && db) {
+      db.collection('chatMessages').doc(messageId.toString()).delete()
+        .then(() => console.log("Message deleted from Firebase"))
+        .catch(error => console.error("Error deleting message from Firebase", error));
+    }
+    renderMessages();
+  }
+
+  // Edit a message by its ID
+  function editMessage(msgObj) {
+    const newText = prompt("Edit your message:", msgObj.text);
+    if (newText !== null && newText.trim() !== "") {
+      msgObj.text = newText.trim();
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
       if (firebaseConfigured && db) {
-        db.collection('posts').doc(postId.toString()).delete()
-          .then(() => console.log("Post deleted from Firebase"))
-          .catch(error => console.error("Error deleting post from Firebase", error));
+        db.collection('chatMessages').doc(msgObj.id.toString()).set(msgObj)
+          .then(() => console.log("Message updated in Firebase"))
+          .catch(error => console.error("Error updating message in Firebase", error));
       }
-      renderPosts();
+      renderMessages();
     }
-    
-    // Edit a post (only available for the owner)
-    function editPost(post) {
-      const newText = prompt("Edit your post:", post.text);
-      if (newText !== null && newText.trim() !== "") {
-        post.text = newText.trim();
-        localStorage.setItem('posts', JSON.stringify(posts));
-        if (firebaseConfigured && db) {
-          db.collection('posts').doc(post.id.toString()).set(post)
-            .then(() => console.log("Post updated in Firebase"))
-            .catch(error => console.error("Error updating post in Firebase", error));
-        }
-        renderPosts();
-      }
+  }
+
+  // Add a comment to a message
+  function addComment(msgId) {
+    if (!currentUserName) {
+      alert('Please set your name first.');
+      return;
     }
-    
-    // Render posts and their comments with filtering by search text.
-    function renderPosts() {
-      postsContainer.innerHTML = '';
-      // Get the current search query and convert it to lower case.
-      const searchQuery = searchInput.value.trim().toLowerCase();
-      
-      // Filter posts based on whether the post text includes the search query.
-      let postsToRender = posts;
-      if (searchQuery) {
-        postsToRender = posts.filter(post => 
-          post.text.toLowerCase().includes(searchQuery)
-        );
+
+    const msgObj = messages.find(m => m.id === msgId);
+    if (!msgObj) return;
+
+    const commentText = prompt("Enter your comment:");
+    if (commentText !== null && commentText.trim() !== "") {
+      const newComment = {
+        commentId: Date.now(),
+        userName: currentUserName,
+        text: commentText.trim(),
+        timestamp: new Date().toISOString()
+      };
+      if (!msgObj.comments) {
+        msgObj.comments = [];
       }
-      
-      postsToRender.slice().reverse().forEach(post => {
-        const postDiv = document.createElement('div');
-        postDiv.className = 'post';
-        
-        const postHeader = document.createElement('div');
-        postHeader.className = 'user-info';
-        postHeader.innerHTML = `<strong>${post.userName}</strong> - ${new Date(post.timestamp).toLocaleString()}`;
-        
-        // Create a container for action buttons
-        const postActionsDiv = document.createElement('div');
-        postActionsDiv.className = 'post-actions';
+      msgObj.comments.push(newComment);
 
-        // Case-insensitive comparison for username
-        if (currentUserName && post.userName.toLowerCase() === currentUserName.toLowerCase()) {
-          const deleteBtn = document.createElement('button');
-          deleteBtn.textContent = "Delete"; // Shorter text
-          deleteBtn.className = 'delete-btn';
-          deleteBtn.addEventListener('click', () => deletePost(post.id));
-          postActionsDiv.appendChild(deleteBtn); // Append to actions div
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
 
-          const editBtn = document.createElement('button');
-          editBtn.textContent = "Edit"; // Shorter text
-          editBtn.className = 'edit-btn';
-          editBtn.addEventListener('click', () => editPost(post));
-          postActionsDiv.appendChild(editBtn); // Append to actions div
+      if (firebaseConfigured && db) {
+        db.collection('chatMessages').doc(msgObj.id.toString()).set(msgObj)
+          .then(() => console.log("Comment added to Firebase"))
+          .catch(error => console.error("Error adding comment to Firebase", error));
+      }
+      renderMessages();
+    }
+  }
+
+  /*******************************************
+   * 6. Render Chat Messages (Filtered by Search)
+   *******************************************/
+  function renderMessages() {
+    messagesContainer.innerHTML = '';
+    const searchQuery = searchInput.value.trim().toLowerCase();
+
+    let messagesToRender = messages;
+    if (searchQuery) {
+      messagesToRender = messages.filter(msg => {
+        if (msg.text.toLowerCase().includes(searchQuery)) {
+          return true;
         }
-        // Append the actions container to the post div
-        postDiv.appendChild(postActionsDiv);
-
-        postDiv.appendChild(postHeader);
-
-        const postContent = document.createElement('div');
-        postContent.innerHTML = `<p>${post.text}</p>`;
-        postDiv.appendChild(postContent);
-        
-        // Display the image as a thumbnail.
-        if (post.image) {
-          const img = document.createElement('img');
-          img.src = post.image;
-          img.className = 'thumbnail';
-          img.style.cursor = 'pointer';
-          
-          // When clicked, open a new mobile-friendly window with a Back button.
-          img.addEventListener('click', () => {
-            const newWindow = window.open('');
-            newWindow.document.write('<html>');
-            newWindow.document.write('<head>');
-            newWindow.document.write('<title>Image</title>');
-            newWindow.document.write('<meta name="viewport" content="width=device-width, initial-scale=1">');
-            newWindow.document.write('<style>');
-            newWindow.document.write('body { margin: 0; padding: 0; }');
-            newWindow.document.write('button { position: fixed; top: 10px; left: 10px; padding: 10px; z-index: 1000; }');
-            newWindow.document.write('img { width: 100%; display: block; margin-top: 50px; }');
-            newWindow.document.write('</style>');
-            newWindow.document.write('</head>');
-            newWindow.document.write('<body>');
-            newWindow.document.write('<button onclick="window.close();">Back</button>');
-            newWindow.document.write('<img src="' + post.image + '" alt="Full Image">');
-            newWindow.document.write('</body></html>');
-            newWindow.document.close();
-          });
-          
-          postDiv.appendChild(img);
-        }
-        
-        const commentsDiv = document.createElement('div');
-        commentsDiv.className = 'comments';
-        const commentsHeader = document.createElement('h4');
-        commentsHeader.textContent = 'Comments';
-        commentsDiv.appendChild(commentsHeader);
-        
-        post.comments = post.comments || [];
-        post.comments.forEach(comment => {
-          const commentDiv = document.createElement('div');
-          commentDiv.className = 'comment';
-          // Wrap timestamp in a span for styling
-          commentDiv.innerHTML = `<strong>${comment.userName}</strong> <span>- ${new Date(comment.timestamp).toLocaleString()}</span><br>${comment.text}`;
-          commentsDiv.appendChild(commentDiv);
-        });
-
-        const commentForm = document.createElement('form');
-        commentForm.style.marginTop = '10px';
-        commentForm.innerHTML = `
-          <input type="text" placeholder="Add a comment..." required style="width: 80%;">
-          <button type="submit">Comment</button>
-        `;
-        commentForm.addEventListener('submit', function(e) {
-          e.preventDefault();
-          const commentInput = commentForm.querySelector('input');
-          const commentText = commentInput.value.trim();
-          if (!commentText) return;
-          const comment = {
-            id: Date.now(),
-            userName: currentUserName || 'Anonymous',
-            text: commentText,
-            timestamp: new Date().toISOString()
-          };
-          post.comments.push(comment);
-          localStorage.setItem('posts', JSON.stringify(posts));
-          if (firebaseConfigured && db) {
-            db.collection('posts').doc(post.id.toString()).set(post)
-              .then(() => console.log("Comment added to Firebase"))
-              .catch(error => console.error("Error updating comment in Firebase", error));
+        if (msg.comments) {
+          for (const comment of msg.comments) {
+            if (comment.text.toLowerCase().includes(searchQuery)) {
+              return true;
+            }
           }
-          renderPosts();
-        });
-        commentsDiv.appendChild(commentForm);
-        
-        postDiv.appendChild(commentsDiv);
-        postsContainer.appendChild(postDiv);
+        }
+        return false;
       });
     }
-    
-    // Add event listener to the search input to update posts as you type.
-    searchInput.addEventListener('input', renderPosts);
-    
-    // Create a new post and save it to localStorage and Firebase if available.
-    function createPost(text, imageData) {
-      const newPost = {
-        id: Date.now(),
-        userName: currentUserName,
-        text: text,
-        image: imageData,
-        timestamp: new Date().toISOString(),
-        comments: []
-      };
-      posts.push(newPost);
-      localStorage.setItem('posts', JSON.stringify(posts));
-      if (firebaseConfigured && db) {
-        db.collection('posts').doc(newPost.id.toString()).set(newPost)
-          .then(() => console.log("Post saved to Firebase"))
-          .catch(error => console.error("Error saving post to Firebase", error));
+
+    messagesToRender.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    messagesToRender.forEach(msg => {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message';
+      if (currentUserName && msg.userName === currentUserName) {
+        msgDiv.classList.add('own');
       }
-      renderPosts();
-    }
-    
-    // Handle new post submission.
-    postForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      if (!currentUserName) {
-        alert('Please set your name first.');
-        return;
+
+      const userInfoDiv = document.createElement('div');
+      userInfoDiv.className = 'message-user-info';
+      userInfoDiv.innerHTML = `<strong>${msg.userName}</strong> - ${new Date(msg.timestamp).toLocaleString()}`;
+      msgDiv.appendChild(userInfoDiv);
+
+      const textDiv = document.createElement('div');
+      textDiv.className = 'message-content';
+      textDiv.textContent = msg.text;
+      msgDiv.appendChild(textDiv);
+
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'message-actions';
+
+      let hasActions = false;
+
+      if (currentUserName && msg.userName === currentUserName) {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.title = 'Delete';
+        deleteBtn.addEventListener('click', () => deleteMessage(msg.id));
+        actionsDiv.appendChild(deleteBtn);
+
+        const editBtn = document.createElement('button');
+        editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+        editBtn.className = 'edit-btn';
+        editBtn.title = 'Edit';
+        editBtn.addEventListener('click', () => editMessage(msg));
+        actionsDiv.appendChild(editBtn);
+        hasActions = true;
       }
-      const text = postText.value.trim();
-      if (!text) {
-        alert('Post text cannot be empty.');
-        return;
+
+      const commentBtn = document.createElement('button');
+      commentBtn.innerHTML = '<i class="fas fa-comment"></i>';
+      commentBtn.className = 'comment-btn';
+      commentBtn.title = 'Comment';
+      commentBtn.addEventListener('click', () => addComment(msg.id));
+      actionsDiv.appendChild(commentBtn);
+      hasActions = true;
+
+      if (hasActions) {
+          msgDiv.appendChild(actionsDiv);
       }
-      const file = postImage.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          const imageData = event.target.result;
-          createPost(text, imageData);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        createPost(text, null);
-      }
-      postForm.reset();
-      postForm.classList.remove('active'); // Hide form after submission
-      togglePostBtn.textContent = '+'; // Reset button to +
-    });
-    
-    // Load posts from Firebase if available; otherwise, use localStorage.
-    if (firebaseConfigured && db) {
-      db.collection('posts').get()
-        .then(querySnapshot => {
-          posts = [];
-          querySnapshot.forEach(doc => {
-            posts.push(doc.data());
-          });
-          localStorage.setItem('posts', JSON.stringify(posts));
-          renderPosts();
-          console.log("Posts loaded from Firebase");
-        })
-        .catch(error => {
-          console.error("Error loading posts from Firebase", error);
-          renderPosts();
+
+      if (msg.comments && msg.comments.length > 0) {
+        const commentsContainer = document.createElement('div');
+        commentsContainer.className = 'comments-container';
+
+        msg.comments.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        msg.comments.forEach(comment => {
+          const commentDiv = document.createElement('div');
+          commentDiv.className = 'comment';
+
+          const commentHeader = document.createElement('div');
+          commentHeader.className = 'comment-header';
+          commentHeader.innerHTML = `<strong>${comment.userName}</strong> - ${new Date(comment.timestamp).toLocaleString()}`;
+          
+          const commentText = document.createElement('div');
+          commentText.textContent = comment.text;
+
+          commentDiv.appendChild(commentHeader);
+          commentDiv.appendChild(commentText);
+          commentsContainer.appendChild(commentDiv);
         });
-    } else {
-      renderPosts();
+
+        msgDiv.appendChild(commentsContainer);
+      }
+
+      messagesContainer.appendChild(msgDiv);
+    });
+
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  searchInput.addEventListener('input', renderMessages);
+
+  /*******************************************
+   * 7. Send a New Message
+   *******************************************/
+  function sendMessage(text) {
+    const newMsg = {
+      id: Date.now(),
+      userName: currentUserName,
+      text,
+      timestamp: new Date().toISOString(),
+      comments: []
+    };
+    messages.push(newMsg);
+    localStorage.setItem('chatMessages', JSON.stringify(messages));
+
+    if (firebaseConfigured && db) {
+      db.collection('chatMessages').doc(newMsg.id.toString()).set(newMsg)
+        .then(() => console.log("Message saved to Firebase"))
+        .catch(error => console.error("Error saving message to Firebase", error));
     }
-  </script>
+    renderMessages();
+  }
+
+  chatForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!currentUserName) {
+      alert('Please set your name first.');
+      return;
+    }
+    const text = chatInput.value.trim();
+    if (!text) {
+      return;
+    }
+    sendMessage(text);
+    chatForm.reset();
+  });
+
+  /*******************************************
+   * 8. Load Messages from Firebase (Realtime)
+   *******************************************/
+  if (firebaseConfigured && db) {
+    db.collection('chatMessages').onSnapshot(querySnapshot => {
+      messages = [];
+      querySnapshot.forEach(doc => {
+        messages.push(doc.data());
+      });
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
+      renderMessages();
+      console.log("Messages loaded/updated from Firebase in real-time");
+    }, error => {
+      console.error("Error in real-time listener:", error);
+      renderMessages();
+    });
+  } else {
+    renderMessages();
+  }
+</script>
 </body>
 </html>
+
